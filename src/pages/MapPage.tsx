@@ -65,7 +65,7 @@ export default function MapPage() {
   const sendReport = async ({ prioridad, descripcion, file }: ReportSubmitData) => {
     const point = selectedPoint ?? userLocation
     if (!point) return
-
+    
     let imagen_url: string | null = null
 
     if (file) {
@@ -82,6 +82,7 @@ export default function MapPage() {
     }
 
     const { data: { user } } = await supabase.auth.getUser()
+    console.log(`User: ${user}`)
     if (!user) return
 
     const { error } = await supabase.from('reportes_baches').insert({
@@ -155,10 +156,10 @@ export default function MapPage() {
 
         {selectedPoint ? (
           /* Panel de acción cuando hay punto seleccionado */
-          <div className="bg-slate-900 rounded-t-3xl px-5 pt-4 pb-8 shadow-2xl border-t border-slate-800">
+          <div className="bg-neutral-1 rounded-t-3xl px-5 pt-4 pb-8 shadow-2xl border-t border-slate-800">
             <div className="w-10 h-1 bg-slate-600 rounded-full mx-auto mb-4" />
 
-            <p className="text-slate-400 text-xs mb-0.5">Punto seleccionado</p>
+            <p className="text-white text-xl mb-0.5">Ubicación seleccionada</p>
             <p className="text-white font-semibold text-base mb-5">
               {selectedPoint.lat.toFixed(5)}, {selectedPoint.lng.toFixed(5)}
             </p>
@@ -196,11 +197,11 @@ export default function MapPage() {
 
         ) : (
           /* Panel de ubicación por defecto */
-          <div className="bg-slate-900 rounded-t-3xl px-5 pt-4 pb-8 shadow-2xl border-t border-slate-800">
-            <div className="w-10 h-1 bg-slate-600 rounded-full mx-auto mb-3" />
+          <div className="bg-neutral-1 rounded-t-3xl px-5 pt-4 pb-8 shadow-2xl border-t border-neutral-2">
+            <div className="w-10 h-1 bg-neutral-1 rounded-full mx-auto mb-3" />
             <p className="text-white font-semibold text-sm">Ubicación en tiempo real</p>
-            <p className="text-slate-400 text-xs mt-0.5 mb-3">{locationLabel}</p>
-            <p className="text-slate-500 text-xs text-center">
+            <p className="text-gray-200 text-xs mt-0.5 mb-3">{locationLabel}</p>
+            <p className="text-gray-400 text-xs text-center">
               Toca cualquier punto del mapa para reportar un bache
             </p>
           </div>

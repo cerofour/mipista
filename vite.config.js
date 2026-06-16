@@ -1,3 +1,4 @@
+import path from "path";
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -5,6 +6,9 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
     resolve: {
         dedupe: ['react', 'react-dom'],
+        alias: {
+            "@": path.resolve(__dirname, "./src"),
+        },
     },
     optimizeDeps: {
         include: ['react-leaflet', 'leaflet'],
@@ -18,8 +22,8 @@ export default defineConfig({
                 name: 'Mi Pista - Reporta Baches',
                 short_name: 'Mi Pista',
                 description: 'Reporta baches en tiempo real en Chiclayo',
-                theme_color: '#0f172a',
-                background_color: '#0f172a',
+                theme_color: '#1e1e1e',
+                background_color: '#1e1e1e',
                 display: 'standalone',
                 orientation: 'portrait',
                 start_url: '/',
@@ -29,6 +33,7 @@ export default defineConfig({
                 ]
             },
             workbox: {
+                maximumFileSizeToCacheInBytes: 15000000, // Aumenta el límite a ~15 MB
                 globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
                 runtimeCaching: [
                     {
