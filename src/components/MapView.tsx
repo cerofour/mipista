@@ -18,7 +18,7 @@ L.Icon.Default.mergeOptions({
 
 const userIcon = L.divIcon({
   html: `
-    <div style="position:relative;width:20px;height:20px">
+    <div role="img" aria-label="Tu ubicación actual" style="position:relative;width:20px;height:20px">
       <div style="position:absolute;inset:0;background:rgba(59,130,246,0.25);border-radius:50%;animation:pulse 2s infinite;"></div>
       <div style="position:absolute;top:3px;left:3px;width:14px;height:14px;background:#3B82F6;border:2.5px solid white;border-radius:50%;box-shadow:0 0 6px rgba(59,130,246,0.6);"></div>
     </div>`,
@@ -54,23 +54,26 @@ export default function MapView({ onMapClick }: MapViewProps) {
 
   const customLowPriorityIcon = useMemo(() => new L.Icon({
     iconUrl: lowPriorityIcon,
-    iconSize: [35, 45],
-    iconAnchor: [17, 45],
-    popupAnchor: [0, -40],
+    iconSize: [44, 57],
+    iconAnchor: [22, 57],
+    popupAnchor: [0, -50],
+    alt: 'Marcador: bache reportado con prioridad baja',
   }), []);
 
   const customMidPriorityIcon = useMemo(() => new L.Icon({
     iconUrl: midPriorityIcon,
-    iconSize: [35, 45],
-    iconAnchor: [17, 45],
-    popupAnchor: [0, -40],
+    iconSize: [44, 57],
+    iconAnchor: [22, 57],
+    popupAnchor: [0, -50],
+    alt: 'Marcador: bache reportado con prioridad media',
   }), []);
 
   const customHighPriorityIcon = useMemo(() => new L.Icon({
     iconUrl: highPriorityIcon,
-    iconSize: [35, 45],
-    iconAnchor: [17, 45],
-    popupAnchor: [0, -40],
+    iconSize: [44, 57],
+    iconAnchor: [22, 57],
+    popupAnchor: [0, -50],
+    alt: 'Marcador: bache reportado con prioridad alta',
   }), []);
 
   const getMarkerIcon = (r: Report) => {
@@ -82,7 +85,31 @@ export default function MapView({ onMapClick }: MapViewProps) {
   }
 
   return (
-    <MapContainer center={[center.lat, center.lng]} zoom={16} zoomControl={false} className="w-full h-full">
+    <MapContainer
+      center={[center.lat, center.lng]}
+      zoom={16}
+      zoomControl={false}
+      className="w-full h-full"
+      aria-label="Mapa de reportes de baches en Chiclayo"
+    >
+
+      <style>{`
+        .leaflet-marker-icon:focus-visible,
+        .leaflet-marker-icon:focus {
+          outline: 3px solid #2563EB;
+          outline-offset: 2px;
+        }
+        .leaflet-container:focus,
+        .leaflet-container:focus-visible {
+          outline: 3px solid #2563EB;
+          outline-offset: -3px;
+        }
+        .leaflet-popup-close-button:focus,
+        .leaflet-popup-close-button:focus-visible {
+          outline: 3px solid #2563EB;
+        }
+      `}</style>
+
       <TileLayer
         attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -92,14 +119,31 @@ export default function MapView({ onMapClick }: MapViewProps) {
 
       {userLocation && <RecenterMap center={userLocation} />}
 
-      {userLocation && <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon} />}
+      {userLocation && (
+        <Marker
+          position={[userLocation.lat, userLocation.lng]}
+          icon={userIcon}
+          keyboard={false}
+        />
+      )}
 
       {reports.map(r => (
-        <Marker key={r.id} position={[r.lat, r.lng]} icon={getMarkerIcon(r)}>
+        <Marker
+          key={r.id}
+          position={[r.lat, r.lng]}
+          icon={getMarkerIcon(r)}
+          keyboard={true}
+        >
           <Popup className="text-sm">
             <strong className="capitalize">Bache de Nivel {r.prioridad}</strong>
             {r.descripcion && <p className="mt-1 text-gray-600">{r.descripcion}</p>}
-            {r.imagen_url && <img src={r.imagen_url} alt="bache" className="mt-2 rounded w-36 object-cover" />}
+            {r.imagen_url && (
+              <img
+                src={r.imagen_url}
+                alt={`Foto del bache reportado, prioridad ${r.prioridad}${r.descripcion ? `: ${r.descripcion}` : ''}`}
+                className="mt-2 rounded w-36 object-cover"
+              />
+            )}
           </Popup>
         </Marker>
       ))}
