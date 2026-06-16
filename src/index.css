@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Leaflet necesita altura explícita */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* Ocultar atribución de Leaflet en móvil para ganar espacio */
+.leaflet-control-attribution {
+  font-size: 9px !important;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateX(-50%) translateY(-12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
