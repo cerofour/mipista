@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 're
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { useApp } from '../context/AppContext'
-import type { Point, Priority, Report } from '../types'
+import type { Point, Report } from '../types'
 
 import lowPriorityIcon from '../assets/PBaja.svg'
 import midPriorityIcon from '../assets/PMedia.svg'
@@ -15,25 +15,6 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
-
-const PRIORITY_COLORS: Record<Priority, string> = { bajo: '#EAB308', medio: '#F97316', alto: '#EF4444' }
-
-const triangleIcon = (prioridad: Priority) => {
-  const color = PRIORITY_COLORS[prioridad] ?? PRIORITY_COLORS.medio
-  return L.divIcon({
-    html: `
-      <div style="
-        width: 0; height: 0;
-        border-left: 13px solid transparent;
-        border-right: 13px solid transparent;
-        border-bottom: 22px solid ${color};
-        filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));
-      "></div>`,
-    className: '',
-    iconSize: [26, 22],
-    iconAnchor: [13, 22]
-  })
-}
 
 const userIcon = L.divIcon({
   html: `
