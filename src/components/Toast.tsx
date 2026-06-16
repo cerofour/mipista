@@ -4,7 +4,7 @@ interface ToastProps {
 }
 
 export default function Toast({ message, type = 'success' }: ToastProps) {
-  const bg = type === 'error' ? 'bg-red-500' : 'bg-slate-800 border border-slate-600'
+  const bg = type === 'error' ? 'bg-red-500' : 'bg-neutral-1 border border-neutral-3'
 
   return (
     <div

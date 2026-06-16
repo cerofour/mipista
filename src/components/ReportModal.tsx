@@ -1,5 +1,16 @@
-import { JSX, useState } from 'react'
+import { useState } from 'react'
 import type { Point, Priority } from '../types'
+
+// shadcn/ui imports (Adjust paths based on your project structure)
+import { cn } from "@/lib/utils"
+import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { Camera } from "lucide-react";
+
+import lowPCrackIllustration from "../assets/HelpLow.svg"
+import midPCrackIllustration from "../assets/HelpMid.svg"
+import highPCrackIllustration from "../assets/HelpHigh.svg"
 
 interface CrackIllustrationProps {
   level: Priority
@@ -7,44 +18,34 @@ interface CrackIllustrationProps {
 }
 
 const CrackIllustration = ({ level, selected }: CrackIllustrationProps) => {
-  const paths: Record<Priority, JSX.Element> = {
-    bajo: (
-      <svg viewBox="0 0 72 36" className="w-full h-9">
-        <rect width="72" height="36" fill="#1e293b" rx="4"/>
-        <line x1="4" y1="18" x2="68" y2="18" stroke="#334155" strokeWidth="1.5"/>
-        <path d="M28 12 L35 20 L30 28" stroke="#94a3b8" strokeWidth="1.2" fill="none"/>
-        <line x1="38" y1="15" x2="44" y2="22" stroke="#94a3b8" strokeWidth="1"/>
-      </svg>
-    ),
-    medio: (
-      <svg viewBox="0 0 72 36" className="w-full h-9">
-        <rect width="72" height="36" fill="#1e293b" rx="4"/>
-        <line x1="4" y1="18" x2="68" y2="18" stroke="#334155" strokeWidth="1.5"/>
-        <ellipse cx="36" cy="20" rx="14" ry="9" fill="#0f172a" stroke="#475569" strokeWidth="1"/>
-        <path d="M22 14 L28 20 L24 28" stroke="#64748b" strokeWidth="1.3" fill="none"/>
-        <path d="M50 13 L44 20 L48 28" stroke="#64748b" strokeWidth="1.3" fill="none"/>
-      </svg>
-    ),
-    alto: (
-      <svg viewBox="0 0 72 36" className="w-full h-9">
-        <rect width="72" height="36" fill="#1e293b" rx="4"/>
-        <line x1="4" y1="18" x2="68" y2="18" stroke="#334155" strokeWidth="1.5"/>
-        <ellipse cx="36" cy="21" rx="20" ry="13" fill="#020617" stroke="#475569" strokeWidth="1"/>
-        <path d="M16 12 L24 22 L18 34" stroke="#64748b" strokeWidth="1.5" fill="none"/>
-        <path d="M56 11 L48 22 L54 34" stroke="#64748b" strokeWidth="1.5" fill="none"/>
-        <path d="M30 4 L36 18 L42 4" stroke="#475569" strokeWidth="1" fill="none"/>
-      </svg>
-    )
+  const images: Record<Priority, string> = {
+    bajo: lowPCrackIllustration,
+    medio: midPCrackIllustration,
+    alto: highPCrackIllustration
   }
 
   return (
-    <div className={`
-      rounded-xl p-2 border-2 transition-all cursor-pointer
-      ${selected ? 'border-blue-500 bg-slate-700' : 'border-slate-700 bg-slate-800 opacity-60'}
-    `}>
-      {paths[level]}
-      <p className="text-white text-xs font-medium text-center mt-1.5 capitalize">{level}</p>
-    </div>
+    <Card 
+      className={cn(
+        "flex flex-col overflow-hidden cursor-pointer transition-all duration-200 border-2 bg-[#1c1c1e]",
+        // Selected state: White border as requested
+        selected 
+          ? "border-white opacity-100 scale-[1.02]" 
+          // Unselected state: Transparent border and slightly faded
+          : "border-transparent opacity-50 hover:opacity-80"
+      )}
+    >
+      <div className="px-3 pt-2 pb-1">
+        <span className="text-white text-[15px] font-medium capitalize tracking-wide">
+          {level}
+        </span>
+      </div>
+      <img 
+        src={images[level]} 
+        alt={`Prioridad ${level}`} 
+        className="w-full object-cover" 
+      />
+    </Card>
   )
 }
 
@@ -74,17 +75,20 @@ export default function ReportModal({ point, onClose, onSubmit }: ReportModalPro
 
   return (
     <div className="absolute inset-0 z-[2000] flex flex-col justify-end">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/60 " onClick={onClose} />
 
-      <div className="relative bg-slate-900 rounded-t-3xl px-5 pt-4 pb-8 shadow-2xl border-t border-slate-700">
-        <div className="w-10 h-1 bg-slate-600 rounded-full mx-auto mb-5" />
+      {/* Modal Content */}
+      <div className="relative bg-neutral-0 rounded-t-[2rem] px-6 pt-5 pb-8">
+        <div className="w-12 h-1.5  rounded-full mx-auto mb-6" />
 
-        <h2 className="text-white font-bold text-lg">Envía un Reporte</h2>
-        <p className="text-slate-400 text-xs mb-5">
+        <h2 className="text-white font-bold text-xl mb-1">Envía un Reporte</h2>
+        <p className="text-slate-400 text-sm mb-6">
           {point ? `${point.lat.toFixed(5)}, ${point.lng.toFixed(5)}` : 'Ubicación actual'}
         </p>
 
-        <div className="grid grid-cols-3 gap-2 mb-4">
+        {/* Priorities Grid */}
+        <div className="grid grid-cols-3 gap-3 mb-6">
           {(['bajo', 'medio', 'alto'] as Priority[]).map(level => (
             <div key={level} onClick={() => setPrioridad(level)}>
               <CrackIllustration level={level} selected={prioridad === level} />
@@ -92,13 +96,22 @@ export default function ReportModal({ point, onClose, onSubmit }: ReportModalPro
           ))}
         </div>
 
-        <label className="flex items-center gap-3 bg-slate-800 rounded-2xl p-3.5 mb-3 cursor-pointer border border-slate-700 active:bg-slate-700 transition-colors">
-          <span className="text-xl">📷</span>
-          <span className="text-slate-300 text-sm truncate flex-1">
-            {file ? file.name : 'Agregar imagen (Opcional)'}
+        {/* Image Upload Label */}
+        <label className="flex items-center gap-3 bg-neutral-3 rounded-xl p-4 mb-4 cursor-pointer hover:bg-neutral-2/80 transition-colors">
+          <span className="text-white text-sm truncate flex-1">
+            {file ? file.name : (
+              <div className="flex gap-2 items-center">
+              <Camera className="" />
+              Agregar imagen (Opcional)
+              </div>
+            )
+            }
           </span>
           {file && (
-            <button onClick={e => { e.preventDefault(); setFile(null) }} className="text-slate-500 text-lg leading-none">
+            <button 
+              onClick={e => { e.preventDefault(); setFile(null) }} 
+              className="text-white hover:text-white transition-colors text-lg leading-none px-2"
+            >
               ✕
             </button>
           )}
@@ -111,26 +124,38 @@ export default function ReportModal({ point, onClose, onSubmit }: ReportModalPro
           />
         </label>
 
-        <textarea
-          value={descripcion}
-          onChange={e => setDescripcion(e.target.value)}
-          placeholder="Escribe un comentario (opcional)"
-          maxLength={120}
-          rows={3}
-          className="w-full bg-slate-800 text-slate-200 rounded-2xl p-3.5 text-sm resize-none outline-none placeholder-slate-500 border border-slate-700 focus:border-blue-500 transition-colors"
-        />
-        <p className="text-slate-500 text-xs mb-4 px-1">{descripcion.length}/120</p>
+        {/* Textarea Configuration */}
+        <div className="relative mb-6">
+          <Textarea
+            value={descripcion}
+            onChange={e => setDescripcion(e.target.value)}
+            placeholder="Escribe un comentario (opcional)"
+            maxLength={120}
+            rows={3}
+            className="w-full bg-neutral-3 text-white rounded-xl p-4 pb-8 text-sm resize-none border-neutral-2 focus-visible:ring-1 focus-visible:ring-white focus-visible:ring-offset-0 placeholder:text-black-300"
+          />
+          <p className="absolute bottom-3 right-4 text-white text-xs">
+            {descripcion.length}/120
+          </p>
+        </div>
 
-        <button
+        {/* Action Buttons */}
+        <Button
           onClick={handleSubmit}
           disabled={submitting}
-          className="w-full bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white rounded-2xl py-4 font-semibold mb-2 transition-colors disabled:opacity-50"
+          size="lg"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-6 font-semibold mb-3 transition-colors"
         >
           {submitting ? 'Enviando...' : 'Enviar Reporte'}
-        </button>
-        <button onClick={onClose} className="w-full text-slate-400 py-2 text-sm">
+        </Button>
+        
+        <Button 
+          variant="ghost" 
+          onClick={onClose} 
+          className="w-full text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl py-6"
+        >
           Cancelar
-        </button>
+        </Button>
       </div>
     </div>
   )

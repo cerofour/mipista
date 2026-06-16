@@ -1,15 +1,19 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { useApp } from '../context/AppContext'
-import type { Point, Priority } from '../types'
+import type { Point, Priority, Report } from '../types'
+
+import lowPriorityIcon from '../assets/PBaja.svg'
+import midPriorityIcon from '../assets/PMedia.svg'
+import highPriorityIcon from '../assets/PAlta.svg'
 
 delete (L.Icon.Default.prototype as { _getIconUrl?: unknown })._getIconUrl
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl:       'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl:     'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
 
 const PRIORITY_COLORS: Record<Priority, string> = { bajo: '#EAB308', medio: '#F97316', alto: '#EF4444' }
@@ -67,6 +71,35 @@ export default function MapView({ onMapClick }: MapViewProps) {
   const { userLocation, reports, CHICLAYO } = useApp()
   const center = userLocation ?? CHICLAYO
 
+  const customLowPriorityIcon = useMemo(() => new L.Icon({
+    iconUrl: lowPriorityIcon,
+    iconSize: [35, 45],
+    iconAnchor: [17, 45],
+    popupAnchor: [0, -40],
+  }), []);
+
+  const customMidPriorityIcon = useMemo(() => new L.Icon({
+    iconUrl: midPriorityIcon,
+    iconSize: [35, 45],
+    iconAnchor: [17, 45],
+    popupAnchor: [0, -40],
+  }), []);
+
+  const customHighPriorityIcon = useMemo(() => new L.Icon({
+    iconUrl: highPriorityIcon,
+    iconSize: [35, 45],
+    iconAnchor: [17, 45],
+    popupAnchor: [0, -40],
+  }), []);
+
+  const getMarkerIcon = (r: Report) => {
+    switch (r.prioridad) {
+      case 'alto': return customHighPriorityIcon;
+      case 'medio': return customMidPriorityIcon;
+      case 'bajo': return customLowPriorityIcon;
+    }
+  }
+
   return (
     <MapContainer center={[center.lat, center.lng]} zoom={16} zoomControl={false} className="w-full h-full">
       <TileLayer
@@ -81,9 +114,9 @@ export default function MapView({ onMapClick }: MapViewProps) {
       {userLocation && <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon} />}
 
       {reports.map(r => (
-        <Marker key={r.id} position={[r.lat, r.lng]} icon={triangleIcon(r.prioridad)}>
+        <Marker key={r.id} position={[r.lat, r.lng]} icon={getMarkerIcon(r)}>
           <Popup className="text-sm">
-            <strong className="capitalize">{r.prioridad}</strong>
+            <strong className="capitalize">Bache de Nivel {r.prioridad}</strong>
             {r.descripcion && <p className="mt-1 text-gray-600">{r.descripcion}</p>}
             {r.imagen_url && <img src={r.imagen_url} alt="bache" className="mt-2 rounded w-36 object-cover" />}
           </Popup>
