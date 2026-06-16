@@ -6,8 +6,8 @@ export default function AuthPage() {
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading]   = useState(false)
-  const [error, setError]       = useState(null)
-  const [success, setSuccess]   = useState(null)
+  const [error, setError]       = useState<string | null>(null)
+  const [success, setSuccess]   = useState<string | null>(null)
 
   const handleSubmit = async () => {
     if (!email || !password) return
@@ -34,9 +34,7 @@ export default function AuthPage() {
         <div className="mb-8 text-center">
           {/* Logo — icono de carretera con triángulo de advertencia */}
           <div className="relative inline-block mb-4">
-            <div className="w-20 h-20 bg-slate-800 rounded-3xl flex items-center justify-center border border-slate-700">
-              <span className="text-4xl">🛣️</span>
-            </div>
+              <img src="Logo1.png"></img>
             <span className="absolute -top-1 -right-1 text-xl">⚠️</span>
           </div>
           <h1 className="text-white text-3xl font-bold tracking-tight">Mi Pista</h1>

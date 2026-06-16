@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { useApp } from '../context/AppContext'
 import MapView from '../components/MapView'
-import ReportModal from '../components/ReportModal'
+import ReportModal, { type ReportSubmitData } from '../components/ReportModal'
 import Toast from '../components/Toast'
+import type { Point } from '../types'
 
 export default function MapPage() {
   const {
@@ -15,16 +16,14 @@ export default function MapPage() {
     CHICLAYO
   } = useApp()
 
-  const [quickStep, setQuickStep] = useState(0) // 0 = idle | 1 = awaiting 2nd tap
-  const quickTimer = useRef(null)
+  const [quickStep, setQuickStep] = useState(0)
+  const quickTimer = useRef<ReturnType<typeof setTimeout>>(0)
 
-  // ── Geolocalización + caché en localStorage ────────────────────
   useEffect(() => {
     fetchReports()
 
-    // Cargar última ubicación guardada mientras el GPS responde
     const cached = localStorage.getItem('mipista_lastloc')
-    if (cached) setUserLocation(JSON.parse(cached))
+    if (cached) setUserLocation(JSON.parse(cached) as Point)
 
     if (!navigator.geolocation) {
       if (!cached) setUserLocation(CHICLAYO)
@@ -33,7 +32,7 @@ export default function MapPage() {
 
     const watchId = navigator.geolocation.watchPosition(
       ({ coords }) => {
-        const loc = { lat: coords.latitude, lng: coords.longitude }
+        const loc: Point = { lat: coords.latitude, lng: coords.longitude }
         setUserLocation(loc)
         localStorage.setItem('mipista_lastloc', JSON.stringify(loc))
       },
@@ -46,18 +45,15 @@ export default function MapPage() {
     return () => navigator.geolocation.clearWatch(watchId)
   }, []) // eslint-disable-line
 
-  // ── Lógica de click en el mapa ─────────────────────────────────
-  const handleMapClick = (point) => {
+  const handleMapClick = (point: Point) => {
     setSelectedPoint(point)
     setQuickStep(0)
     clearTimeout(quickTimer.current)
   }
 
-  // ── Reporte rápido (2 taps) ────────────────────────────────────
   const handleQuickReport = () => {
     if (quickStep === 0) {
       setQuickStep(1)
-      // Auto-reset si el usuario no confirma en 4 segundos
       quickTimer.current = setTimeout(() => setQuickStep(0), 4000)
     } else {
       clearTimeout(quickTimer.current)
@@ -66,12 +62,11 @@ export default function MapPage() {
     }
   }
 
-  // ── Envío a Supabase ───────────────────────────────────────────
-  const sendReport = async ({ prioridad, descripcion, file }) => {
+  const sendReport = async ({ prioridad, descripcion, file }: ReportSubmitData) => {
     const point = selectedPoint ?? userLocation
     if (!point) return
 
-    let imagen_url = null
+    let imagen_url: string | null = null
 
     if (file) {
       const ext  = file.name.split('.').pop()
@@ -81,14 +76,13 @@ export default function MapPage() {
         .upload(path, file, { contentType: file.type })
 
       if (!uploadErr) {
-        const { data } = supabase.storage
-          .from('bache-images')
-          .getPublicUrl(path)
+        const { data } = supabase.storage.from('bache-images').getPublicUrl(path)
         imagen_url = data.publicUrl
       }
     }
 
     const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
 
     const { error } = await supabase.from('reportes_baches').insert({
       user_id: user.id,
@@ -103,7 +97,7 @@ export default function MapPage() {
       showToast('❌ Error al enviar reporte', 'error')
     } else {
       showToast('✅ Reporte enviado')
-      fetchReports() // Refrescar marcadores en el mapa
+      fetchReports()
     }
   }
 
@@ -117,7 +111,6 @@ export default function MapPage() {
     await supabase.auth.signOut()
   }
 
-  // ── Coordenadas formateadas para el panel ──────────────────────
   const locationLabel = userLocation
     ? `${userLocation.lat.toFixed(5)}, ${userLocation.lng.toFixed(5)}`
     : 'Localizando...'
