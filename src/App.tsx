@@ -1,5 +1,7 @@
 import { useApp } from './context/AppContext'
 import AuthPage from './pages/AuthPage'
+import InitialPage from './pages/InitialPage'
+import LoginPage from './pages/LoginPage'
 import MapPage from './pages/MapPage'
 
 export default function App() {
@@ -16,5 +18,5 @@ export default function App() {
     )
   }
 
-  return user ? <MapPage /> : <AuthPage />
+  return user ? <MapPage /> : <InitialPage/>
 }
