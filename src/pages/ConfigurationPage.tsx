@@ -4,14 +4,29 @@ import { authService } from '@/services/auth.service'
 import { Button } from '@/components/ui/button'
 import { Card, CardTitle, CardDescription } from '@/components/ui/card'
 import { ArrowLeft, Lock } from 'lucide-react'
+import { speak } from '@/lib/speech'
 
 export default function ConfigurationPage() {
-  const { largeTouchTargets, setLargeTouchTargets, highContrast, setHighContrast } = useApp()
+  const { 
+    largeTouchTargets, setLargeTouchTargets, 
+    highContrast, setHighContrast,
+    voiceConfirmations, setVoiceConfirmations 
+  } = useApp()
   const navigate = useNavigate()
 
   const handleLogout = async () => {
     await authService.logout()
     navigate('/')
+  }
+
+  const handleVoiceToggle = () => {
+    const nextVal = !voiceConfirmations
+    setVoiceConfirmations(nextVal)
+    if (nextVal) {
+      speak('Confirmaciones por voz activadas')
+    } else {
+      speak('Confirmaciones desactivadas')
+    }
   }
 
   // Clases dinámicas basadas en la accesibilidad de botones grandes
@@ -116,25 +131,35 @@ export default function ConfigurationPage() {
               </div>
             </Card>
 
-            {/* Opción 3: Confirmaciones por Voz (Próximamente) */}
-            <Card className={`border-slate-900 bg-slate-900/20 opacity-60 ${cardSpacingClass}`}>
+            {/* Opción 3: Confirmaciones por Voz (Implementada) */}
+            <Card className={`border-slate-800 bg-slate-900/40 backdrop-blur transition-all duration-200 ${cardSpacingClass}`}>
               <div className="flex items-center justify-between gap-4">
                 <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <CardTitle className={`text-slate-300 font-semibold ${textTitleClass}`}>
-                      Confirmaciones por Voz
-                    </CardTitle>
-                    <span className="text-[10px] font-semibold bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                      Próximamente
-                    </span>
-                  </div>
-                  <CardDescription className={`text-slate-500 mt-1 leading-relaxed ${textSubClass}`}>
+                  <CardTitle className={`text-white font-semibold ${textTitleClass}`}>
+                    Confirmaciones por Voz
+                  </CardTitle>
+                  <CardDescription className={`text-slate-400 mt-1 leading-relaxed ${textSubClass}`}>
                     Escucha una confirmación por audio al reportar para verificar el envío sin desviar la mirada del camino.
                   </CardDescription>
                 </div>
-                <div className={`rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center ${largeTouchTargets ? 'w-12 h-12' : 'w-10 h-10'}`}>
-                  <Lock className={`text-slate-600 ${largeTouchTargets ? 'w-6 h-6' : 'w-4 h-4'}`} />
-                </div>
+                
+                {/* Interruptor de palanca accesible */}
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={voiceConfirmations}
+                  aria-label="Activar confirmaciones por voz"
+                  onClick={handleVoiceToggle}
+                  className={`relative inline-flex shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 ${
+                    voiceConfirmations ? 'bg-blue-600' : 'bg-slate-800'
+                  } ${toggleSizeClass}`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out absolute top-0.5 ${
+                      voiceConfirmations ? toggleTranslateClass : 'translate-x-1'
+                    } ${largeTouchTargets ? 'w-6 h-6 animate-pulse-once' : 'w-4 h-4'}`}
+                  />
+                </button>
               </div>
             </Card>
 

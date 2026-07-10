@@ -4,6 +4,7 @@ import type { Point, Report, ToastState } from '../types'
 import { authService } from '../services/auth.service'
 import { reportService } from '../services/report.service'
 import { locationService } from '../services/location.service'
+import { speak } from '../lib/speech'
 
 interface AppContextValue {
   user: User | null
@@ -23,6 +24,8 @@ interface AppContextValue {
   setLargeTouchTargets: (enabled: boolean) => void
   highContrast: boolean
   setHighContrast: (enabled: boolean) => void
+  voiceConfirmations: boolean
+  setVoiceConfirmations: (enabled: boolean) => void
 }
 
 const AppContext = createContext<AppContextValue | null>(null)
@@ -40,6 +43,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   })
   const [highContrast, setHighContrastState] = useState<boolean>(() => {
     return localStorage.getItem('mipista_high_contrast') === 'true'
+  })
+  const [voiceConfirmations, setVoiceConfirmationsState] = useState<boolean>(() => {
+    return localStorage.getItem('mipista_voice_confirmations') === 'true'
   })
 
   useEffect(() => {
@@ -73,8 +79,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const showToast = useCallback((message: string, type: 'success' | 'error' = 'success') => {
     setToast({ message, type })
+    if (voiceConfirmations) {
+      speak(message)
+    }
     setTimeout(() => setToast(null), 3000)
-  }, [])
+  }, [voiceConfirmations])
 
   const setLargeTouchTargets = useCallback((enabled: boolean) => {
     setLargeTouchTargetsState(enabled)
@@ -84,6 +93,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const setHighContrast = useCallback((enabled: boolean) => {
     setHighContrastState(enabled)
     localStorage.setItem('mipista_high_contrast', String(enabled))
+  }, [])
+
+  const setVoiceConfirmations = useCallback((enabled: boolean) => {
+    setVoiceConfirmationsState(enabled)
+    localStorage.setItem('mipista_voice_confirmations', String(enabled))
   }, [])
 
   const value: AppContextValue = {
@@ -97,7 +111,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     largeTouchTargets,
     setLargeTouchTargets,
     highContrast,
-    setHighContrast
+    setHighContrast,
+    voiceConfirmations,
+    setVoiceConfirmations
   }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

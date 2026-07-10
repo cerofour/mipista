@@ -5,6 +5,7 @@ import { locationService } from '@/services/location.service'
 import { authService } from '@/services/auth.service'
 import { useReverseGeocode } from '@/lib/useReverseGeoCode'
 import type { Point } from '@/types'
+import { speak } from '@/lib/speech'
 
 export function useMapController() {
   const {
@@ -13,7 +14,8 @@ export function useMapController() {
     selectedPoint, setSelectedPoint,
     showReportModal, setShowReportModal,
     toast, showToast,
-    CHICLAYO
+    CHICLAYO,
+    voiceConfirmations
   } = useApp()
 
   const [showListModal, setShowListModal] = useState(false)
@@ -68,6 +70,9 @@ export function useMapController() {
   const handleQuickReport = async () => {
     if (quickStep === 0) {
       setQuickStep(1)
+      if (voiceConfirmations) {
+        speak('Toca de nuevo para confirmar reporte rápido')
+      }
       quickTimer.current = setTimeout(() => setQuickStep(0), 4000)
     } else {
       if (quickTimer.current) clearTimeout(quickTimer.current)
@@ -122,7 +127,13 @@ export function useMapController() {
   }
 
   const handleReportSubmit = async (data: any) => {
-    await reportService.sendReport(data)
+    const error = await reportService.sendReport(data)
+    if (error) {
+      showToast('Error al enviar reporte', 'error')
+    } else {
+      showToast('Reporte enviado correctamente')
+      fetchReports()
+    }
     setShowReportModal(false)
     dismissPanel()
   }
