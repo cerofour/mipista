@@ -9,6 +9,7 @@ import InitialPage from './pages/InitialPage.tsx';
 import MiPistaLogin from './pages/LoginPage.tsx';
 import AuthPage from './pages/AuthPage.tsx';
 import MapPage from './pages/MapPage.tsx';
+import ConfigurationPage from './pages/ConfigurationPage.tsx';
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
   {
     path: "map",
     Component: MapPage,
+  },
+  {
+    path: "configuration",
+    Component: ConfigurationPage,
   }
 ]);
 

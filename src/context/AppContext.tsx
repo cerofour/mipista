@@ -19,6 +19,8 @@ interface AppContextValue {
   toast: ToastState | null
   showToast: (message: string, type?: 'success' | 'error') => void
   CHICLAYO: Point
+  largeTouchTargets: boolean
+  setLargeTouchTargets: (enabled: boolean) => void
 }
 
 const AppContext = createContext<AppContextValue | null>(null)
@@ -31,6 +33,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [selectedPoint, setSelectedPoint] = useState<Point | null>(null)
   const [showReportModal, setShowReportModal] = useState(false)
   const [toast, setToast] = useState<ToastState | null>(null)
+  const [largeTouchTargets, setLargeTouchTargetsState] = useState<boolean>(() => {
+    return localStorage.getItem('mipista_large_touch_targets') === 'true'
+  })
 
   useEffect(() => {
     authService.getSession().then((session) => {
@@ -57,6 +62,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setTimeout(() => setToast(null), 3000)
   }, [])
 
+  const setLargeTouchTargets = useCallback((enabled: boolean) => {
+    setLargeTouchTargetsState(enabled)
+    localStorage.setItem('mipista_large_touch_targets', String(enabled))
+  }, [])
+
   const value: AppContextValue = {
     user, loading,
     userLocation, setUserLocation,
@@ -64,7 +74,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     selectedPoint, setSelectedPoint,
     showReportModal, setShowReportModal,
     toast, showToast,
-    CHICLAYO: locationService.CHICLAYO
+    CHICLAYO: locationService.CHICLAYO,
+    largeTouchTargets,
+    setLargeTouchTargets
   }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import type { Point, Priority } from '../types'
 import { useReverseGeocode } from '../lib/useReverseGeoCode'
+import { useApp } from '../context/AppContext'
 
 // shadcn/ui imports (Adjust paths based on your project structure)
 import { cn } from "@/lib/utils"
@@ -24,6 +25,7 @@ const PRIORITY_LABELS: Record<Priority, string> = {
 interface CrackIllustrationProps {
   level: Priority
   selected: boolean
+  large?: boolean
 }
 
 interface ReportModalProps {
@@ -33,7 +35,7 @@ interface ReportModalProps {
 }
 
 
-const CrackIllustration = ({ level, selected }: CrackIllustrationProps) => {
+const CrackIllustration = ({ level, selected, large }: CrackIllustrationProps) => {
   const images: Record<Priority, string> = {
     bajo: lowPCrackIllustration,
     medio: midPCrackIllustration,
@@ -51,8 +53,8 @@ const CrackIllustration = ({ level, selected }: CrackIllustrationProps) => {
           : "border-transparent opacity-50 hover:opacity-80"
       )}
     >
-      <div className="px-3 pt-2 pb-1">
-        <span className="text-white text-[15px] font-medium capitalize tracking-wide">
+      <div className={cn("pt-2 pb-1", large ? "px-4 py-3" : "px-3")}>
+        <span className={cn("text-white font-medium capitalize tracking-wide", large ? "text-[18px]" : "text-[15px]")}>
           {level}
         </span>
       </div>
@@ -66,6 +68,7 @@ const CrackIllustration = ({ level, selected }: CrackIllustrationProps) => {
 }
 
 export default function ReportModal({ point, onClose, onSubmit }: ReportModalProps) {
+  const { largeTouchTargets } = useApp()
   const [prioridad, setPrioridad]     = useState<Priority>('medio')
   const [descripcion, setDescripcion] = useState('')
   const [file, setFile]               = useState<File | null>(null)
@@ -103,8 +106,8 @@ export default function ReportModal({ point, onClose, onSubmit }: ReportModalPro
       <div className="relative bg-neutral-0 rounded-t-[2rem] px-6 pt-5 pb-8">
         <div className="w-12 h-1.5  rounded-full mx-auto mb-6" aria-hidden="true" />
 
-        <h2 id="modal-title" ref={headingRef} tabIndex={-1} className="text-white font-bold text-xl mb-1">Envía un Reporte</h2>
-        <p className="text-slate-400 text-sm mb-6">
+        <h2 id="modal-title" ref={headingRef} tabIndex={-1} className={`text-white font-bold mb-1 ${largeTouchTargets ? 'text-2xl' : 'text-xl'}`}>Envía un Reporte</h2>
+        <p className={`text-slate-400 mb-6 ${largeTouchTargets ? 'text-base' : 'text-sm'}`}>
           {addressLoading
             ? 'Buscando dirección...'
             : address ?? (point ? `${point.lat.toFixed(5)}, ${point.lng.toFixed(5)}` : 'Ubicación actual')}
@@ -112,7 +115,7 @@ export default function ReportModal({ point, onClose, onSubmit }: ReportModalPro
 
         {/* Priorities Grid */}
         <fieldset className="mb-6">
-          <legend className="text-slate-300 text-sm mb-3">
+          <legend className={`text-slate-300 mb-3 ${largeTouchTargets ? 'text-base font-medium' : 'text-sm'}`}>
             Selecciona la severidad del bache
           </legend>
           <div className="grid grid-cols-3 gap-3">
@@ -124,9 +127,11 @@ export default function ReportModal({ point, onClose, onSubmit }: ReportModalPro
                 onClick={() => setPrioridad(level)}
                 aria-label={PRIORITY_LABELS[level]}
                 aria-pressed={prioridad === level}
-                className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-xl min-h-[44px]"
+                className={`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-xl transition-all ${
+                  largeTouchTargets ? 'min-h-[64px]' : 'min-h-[44px]'
+                }`}
               >
-                <CrackIllustration level={level} selected={prioridad === level} />
+                <CrackIllustration level={level} selected={prioridad === level} large={largeTouchTargets} />
               </button>
             ))}
           </div>
@@ -135,15 +140,16 @@ export default function ReportModal({ point, onClose, onSubmit }: ReportModalPro
         <div className="mb-4">
           <label
             htmlFor="file-input"
-            className="flex items-center gap-3 bg-neutral-3 rounded-xl p-4 cursor-pointer
-              hover:bg-neutral-2/80 transition-colors min-h-[44px]
-              focus-within:ring-2 focus-within:ring-white"
+            className={`flex items-center gap-3 bg-neutral-3 rounded-xl cursor-pointer
+              hover:bg-neutral-2/80 transition-colors focus-within:ring-2 focus-within:ring-white ${
+                largeTouchTargets ? 'p-6 min-h-[64px]' : 'p-4 min-h-[44px]'
+              }`}
           >
-            <span className="text-white text-sm truncate flex-1">
+            <span className={`text-white truncate flex-1 ${largeTouchTargets ? 'text-base font-semibold' : 'text-sm'}`}>
               {file ? file.name : (
                 <span className="flex gap-2 items-center">
 
-                  <Camera aria-hidden="true" />
+                  <Camera aria-hidden="true" className={largeTouchTargets ? 'w-6 h-6' : 'w-4 h-4'} />
                   Agregar imagen (Opcional)
                 </span>
               )}
@@ -154,9 +160,10 @@ export default function ReportModal({ point, onClose, onSubmit }: ReportModalPro
                 type="button"
                 onClick={e => { e.preventDefault(); setFile(null); setFileError(null) }}
                 aria-label="Quitar imagen seleccionada"
-                className="text-white hover:text-white transition-colors text-lg leading-none px-2
-                  min-w-[44px] min-h-[44px] flex items-center justify-center
-                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded"
+                className={`text-white hover:text-white transition-colors leading-none px-2
+                  flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded ${
+                    largeTouchTargets ? 'min-w-[64px] min-h-[64px] text-xl' : 'min-w-[44px] min-h-[44px] text-lg'
+                  }`}
               >
                 ✕
               </button>
@@ -180,7 +187,7 @@ export default function ReportModal({ point, onClose, onSubmit }: ReportModalPro
         </div>
 
         <div className="relative mb-6">
-          <label htmlFor="descripcion" className="text-slate-300 text-sm mb-1 block">
+          <label htmlFor="descripcion" className={`text-slate-300 mb-1 block ${largeTouchTargets ? 'text-base font-semibold' : 'text-sm'}`}>
             Descripción <span className="text-slate-500">(opcional)</span>
           </label>
           <Textarea
@@ -192,9 +199,11 @@ export default function ReportModal({ point, onClose, onSubmit }: ReportModalPro
             rows={3}
             autoComplete="off"
             aria-describedby="char-count"
-            className="w-full bg-neutral-3 text-white rounded-xl p-4 pb-8 text-sm resize-none
+            className={`w-full bg-neutral-3 text-white rounded-xl p-4 pb-8 resize-none
               border-neutral-2 focus-visible:ring-1 focus-visible:ring-white
-              focus-visible:ring-offset-0 placeholder:text-black-300"
+              focus-visible:ring-offset-0 placeholder:text-black-300 ${
+                largeTouchTargets ? 'text-base min-h-[100px]' : 'text-sm'
+              }`}
           />
 
           <p
@@ -211,7 +220,9 @@ export default function ReportModal({ point, onClose, onSubmit }: ReportModalPro
           onClick={handleSubmit}
           disabled={submitting}
           size="lg"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-6 font-semibold mb-3 transition-colors"
+          className={`w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold mb-3 transition-colors ${
+            largeTouchTargets ? 'py-8 text-xl min-h-[64px]' : 'py-6 text-base min-h-[44px]'
+          }`}
         >
           {submitting ? 'Enviando...' : 'Enviar Reporte'}
         </Button>
@@ -220,7 +231,9 @@ export default function ReportModal({ point, onClose, onSubmit }: ReportModalPro
           type="button"
           variant="ghost"
           onClick={onClose}
-          className="w-full text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl py-6"
+          className={`w-full text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all ${
+            largeTouchTargets ? 'py-8 text-xl min-h-[64px]' : 'py-6 text-base'
+          }`}
         >
           Cancelar
         </Button>
