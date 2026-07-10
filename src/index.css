@@ -197,3 +197,124 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* --- High Contrast Theme (Sunlight Optimization) --- */
+html.high-contrast {
+  /* Core Variables Override */
+  --background: #000000 !important;
+  --foreground: #ffffff !important;
+  --card: #000000 !important;
+  --card-foreground: #ffffff !important;
+  --border: #ffffff !important;
+  --ring: #ffff00 !important;
+  
+  /* Neutral Color Overrides */
+  --color-neutral-0: #000000 !important;
+  --color-neutral-1: #000000 !important;
+  --color-neutral-2: #ffffff !important;
+  --color-neutral-3: #000000 !important;
+  --color-neutral-4: #ffffff !important;
+  
+  /* Slate Color overrides for backgrounds and texts */
+  --color-slate-950: #000000 !important;
+  --color-slate-900: #000000 !important;
+  --color-slate-800: #000000 !important;
+  --color-slate-700: #000000 !important;
+  --color-slate-600: #000000 !important;
+  --color-slate-500: #ffffff !important;
+  --color-slate-400: #ffffff !important;
+  --color-slate-300: #ffffff !important;
+}
+
+/* Explicit CSS Overrides for absolute contrast */
+html.high-contrast body {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* Leaflet Map High Contrast Filter for Sunlight Glare */
+html.high-contrast .leaflet-tile {
+  filter: grayscale(100%) contrast(180%) brightness(100%) !important;
+}
+
+/* Ensure buttons have high contrast borders and clear background colors */
+html.high-contrast button,
+html.high-contrast a,
+html.high-contrast input,
+html.high-contrast textarea,
+html.high-contrast label {
+  border-color: #ffffff !important;
+}
+
+/* High Contrast state for active/primary items (Yellow/Black) */
+html.high-contrast .bg-blue-500,
+html.high-contrast .bg-blue-600,
+html.high-contrast [data-slot="button"][class*="bg-primary"],
+html.high-contrast button[role="switch"][aria-checked="true"] {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  border-color: #ffff00 !important;
+  font-weight: 800 !important;
+}
+
+html.high-contrast .bg-slate-900\/50,
+html.high-contrast .bg-slate-900\/40,
+html.high-contrast .bg-slate-700,
+html.high-contrast .bg-slate-800,
+html.high-contrast .bg-neutral-3 {
+  background-color: #000000 !important;
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+}
+
+/* GPS and List Floating Buttons (White bg on map) */
+html.high-contrast .bg-white\/95,
+html.high-contrast .bg-white {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+html.high-contrast .bg-white\/95 *,
+html.high-contrast .bg-white * {
+  color: #000000 !important;
+}
+
+/* Specific text colors */
+html.high-contrast .text-blue-500,
+html.high-contrast .text-slate-400,
+html.high-contrast .text-slate-300,
+html.high-contrast .text-slate-700,
+html.high-contrast .text-slate-500,
+html.high-contrast .text-gray-300,
+html.high-contrast .text-gray-400 {
+  color: #ffffff !important;
+}
+
+/* Warning/Severity color adjustments for high contrast */
+html.high-contrast .text-red-400,
+html.high-contrast .text-orange-400,
+html.high-contrast .text-blue-400 {
+  color: #ffff00 !important;
+  text-decoration: underline;
+  font-weight: 800 !important;
+}
+
+html.high-contrast .border-slate-800,
+html.high-contrast .border-slate-700,
+html.high-contrast .border-slate-900,
+html.high-contrast .border-neutral-2 {
+  border-color: #ffffff !important;
+  border-width: 2px !important;
+}
+
+/* Toggles and active indicators */
+html.high-contrast button[role="switch"] span {
+  border: 1px solid #000000 !important;
+}
+html.high-contrast button[role="switch"][aria-checked="true"] span {
+  background-color: #000000 !important;
+}
+html.high-contrast button[role="switch"][aria-checked="false"] span {
+  background-color: #ffffff !important;
+}

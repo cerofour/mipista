@@ -6,7 +6,7 @@ import { Card, CardTitle, CardDescription } from '@/components/ui/card'
 import { ArrowLeft, Lock } from 'lucide-react'
 
 export default function ConfigurationPage() {
-  const { largeTouchTargets, setLargeTouchTargets } = useApp()
+  const { largeTouchTargets, setLargeTouchTargets, highContrast, setHighContrast } = useApp()
   const navigate = useNavigate()
 
   const handleLogout = async () => {
@@ -84,25 +84,35 @@ export default function ConfigurationPage() {
               </div>
             </Card>
 
-            {/* Opción 2: Alto Contraste (Próximamente) */}
-            <Card className={`border-slate-900 bg-slate-900/20 opacity-60 ${cardSpacingClass}`}>
+            {/* Opción 2: Alto Contraste (Implementada) */}
+            <Card className={`border-slate-800 bg-slate-900/40 backdrop-blur transition-all duration-200 ${cardSpacingClass}`}>
               <div className="flex items-center justify-between gap-4">
                 <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <CardTitle className={`text-slate-300 font-semibold ${textTitleClass}`}>
-                      Alto Contraste
-                    </CardTitle>
-                    <span className="text-[10px] font-semibold bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                      Próximamente
-                    </span>
-                  </div>
-                  <CardDescription className={`text-slate-500 mt-1 leading-relaxed ${textSubClass}`}>
-                    Optimiza la interfaz con colores de alta visibilidad para combatir el reflejo directo del sol de Chiclayo.
+                  <CardTitle className={`text-white font-semibold ${textTitleClass}`}>
+                    Alto Contraste (Sol)
+                  </CardTitle>
+                  <CardDescription className={`text-slate-400 mt-1 leading-relaxed ${textSubClass}`}>
+                    Optimiza la interfaz con colores de alta visibilidad amarillo y negro para combatir el reflejo directo del sol de Chiclayo.
                   </CardDescription>
                 </div>
-                <div className={`rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center ${largeTouchTargets ? 'w-12 h-12' : 'w-10 h-10'}`}>
-                  <Lock className={`text-slate-600 ${largeTouchTargets ? 'w-6 h-6' : 'w-4 h-4'}`} />
-                </div>
+                
+                {/* Interruptor de palanca accesible */}
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={highContrast}
+                  aria-label="Activar alto contraste"
+                  onClick={() => setHighContrast(!highContrast)}
+                  className={`relative inline-flex shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 ${
+                    highContrast ? 'bg-blue-600' : 'bg-slate-800'
+                  } ${toggleSizeClass}`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out absolute top-0.5 ${
+                      highContrast ? toggleTranslateClass : 'translate-x-1'
+                    } ${largeTouchTargets ? 'w-6 h-6 animate-pulse-once' : 'w-4 h-4'}`}
+                  />
+                </button>
               </div>
             </Card>
 

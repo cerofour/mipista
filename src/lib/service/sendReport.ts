@@ -3,16 +3,21 @@ import { supabase } from "../supabaseClient"
 import { Priority, Point } from "@/types"
 
 export interface ReportSubmitData {
-  point: Point | null
-  prioridad: Priority
-  descripcion: string | null
-  file: File | null
+    point: Point | null
+    prioridad: Priority
+    descripcion: string | null
+    file: File | null
 }
 
 const sendReport = async ({ point, prioridad, descripcion, file }: ReportSubmitData) => {
+
+    console.log("Before !point")
+
     if (!point) return
 
     let imagen_url: string | null = null
+
+    console.log("After if !point")
 
     if (file) {
         const ext = file.name.split('.').pop()

@@ -21,6 +21,8 @@ interface AppContextValue {
   CHICLAYO: Point
   largeTouchTargets: boolean
   setLargeTouchTargets: (enabled: boolean) => void
+  highContrast: boolean
+  setHighContrast: (enabled: boolean) => void
 }
 
 const AppContext = createContext<AppContextValue | null>(null)
@@ -36,6 +38,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [largeTouchTargets, setLargeTouchTargetsState] = useState<boolean>(() => {
     return localStorage.getItem('mipista_large_touch_targets') === 'true'
   })
+  const [highContrast, setHighContrastState] = useState<boolean>(() => {
+    return localStorage.getItem('mipista_high_contrast') === 'true'
+  })
 
   useEffect(() => {
     authService.getSession().then((session) => {
@@ -47,6 +52,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     )
     return () => subscription.unsubscribe()
   }, [])
+
+  // Sync high-contrast class with document.documentElement
+  useEffect(() => {
+    if (highContrast) {
+      document.documentElement.classList.add('high-contrast')
+    } else {
+      document.documentElement.classList.remove('high-contrast')
+    }
+  }, [highContrast])
 
   const fetchReports = useCallback(async () => {
     try {
@@ -67,6 +81,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('mipista_large_touch_targets', String(enabled))
   }, [])
 
+  const setHighContrast = useCallback((enabled: boolean) => {
+    setHighContrastState(enabled)
+    localStorage.setItem('mipista_high_contrast', String(enabled))
+  }, [])
+
   const value: AppContextValue = {
     user, loading,
     userLocation, setUserLocation,
@@ -76,7 +95,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     toast, showToast,
     CHICLAYO: locationService.CHICLAYO,
     largeTouchTargets,
-    setLargeTouchTargets
+    setLargeTouchTargets,
+    highContrast,
+    setHighContrast
   }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

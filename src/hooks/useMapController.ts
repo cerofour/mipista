@@ -80,6 +80,7 @@ export function useMapController() {
       })
 
       if (error) {
+        console.log(error);
         showToast('Error al enviar reporte', 'error')
       } else {
         showToast('Reporte enviado correctamente')
