@@ -13,6 +13,8 @@ import lowPCrackIllustration from "../assets/HelpLow.svg"
 import midPCrackIllustration from "../assets/HelpMid.svg"
 import highPCrackIllustration from "../assets/HelpHigh.svg"
 
+import { ReportSubmitData } from '@/lib/service/sendReport'
+
 const PRIORITY_LABELS: Record<Priority, string> = {
   bajo:  'Bajo — grieta superficial',
   medio: 'Medio — bache moderado',
@@ -23,6 +25,13 @@ interface CrackIllustrationProps {
   level: Priority
   selected: boolean
 }
+
+interface ReportModalProps {
+  point: Point | null
+  onClose: () => void
+  onSubmit: (data: ReportSubmitData) => Promise<void>
+}
+
 
 const CrackIllustration = ({ level, selected }: CrackIllustrationProps) => {
   const images: Record<Priority, string> = {
@@ -56,18 +65,6 @@ const CrackIllustration = ({ level, selected }: CrackIllustrationProps) => {
   )
 }
 
-export interface ReportSubmitData {
-  prioridad: Priority
-  descripcion: string | null
-  file: File | null
-}
-
-interface ReportModalProps {
-  point: Point | null
-  onClose: () => void
-  onSubmit: (data: ReportSubmitData) => Promise<void>
-}
-
 export default function ReportModal({ point, onClose, onSubmit }: ReportModalProps) {
   const [prioridad, setPrioridad]     = useState<Priority>('medio')
   const [descripcion, setDescripcion] = useState('')
@@ -81,7 +78,7 @@ export default function ReportModal({ point, onClose, onSubmit }: ReportModalPro
 
   const handleSubmit = async () => {
     setSubmitting(true)
-    await onSubmit({ prioridad, descripcion: descripcion.trim() || null, file })
+    await onSubmit({ point, prioridad, descripcion: descripcion.trim() || null, file })
     setSubmitting(false)
   }
 

@@ -44,6 +44,15 @@ function RecenterMap({ center }: { center: Point }) {
   return null
 }
 
+function MapA11y() {
+  const map = useMap()
+  useEffect(() => {
+    const container = map.getContainer()
+    container.setAttribute('role', 'application')
+  }, [map])
+  return null
+}
+
 interface MapViewProps {
   onMapClick: (point: Point) => void
 }
@@ -115,6 +124,7 @@ export default function MapView({ onMapClick }: MapViewProps) {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
 
+      <MapA11y />
       <ClickHandler onMapClick={onMapClick} />
 
       {userLocation && <RecenterMap center={userLocation} />}
@@ -133,6 +143,7 @@ export default function MapView({ onMapClick }: MapViewProps) {
           position={[r.lat, r.lng]}
           icon={getMarkerIcon(r)}
           keyboard={true}
+          title={`Bache reportado: prioridad ${r.prioridad}`}
         >
           <Popup className="text-sm">
             <strong className="capitalize">Bache de Nivel {r.prioridad}</strong>

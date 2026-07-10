@@ -1,31 +1,18 @@
-import { useState } from 'react'
-import { supabase } from '../lib/supabaseClient'
+import { useSignupController } from '../hooks/useSignupController'
 
 export default function AuthPage() {
-  const [isLogin, setIsLogin]   = useState(true)
-  const [email, setEmail]       = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading]   = useState(false)
-  const [error, setError]       = useState<string | null>(null)
-  const [success, setSuccess]   = useState<string | null>(null)
-
-  const handleSubmit = async () => {
-    if (!email || !password) return
-    setLoading(true)
-    setError(null)
-    setSuccess(null)
-
-    const { error } = isLogin
-      ? await supabase.auth.signInWithPassword({ email, password })
-      : await supabase.auth.signUp({ email, password })
-
-    if (error) {
-      setError(error.message)
-    } else if (!isLogin) {
-      setSuccess('Cuenta creada. Revisa tu email o inicia sesión directamente.')
-    }
-    setLoading(false)
-  }
+  const {
+    isLogin,
+    email,
+    setEmail,
+    password,
+    setPassword,
+    loading,
+    error,
+    success,
+    handleSubmit,
+    toggleMode
+  } = useSignupController()
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col">
@@ -83,7 +70,7 @@ export default function AuthPage() {
           </button>
 
           <button
-            onClick={() => { setIsLogin(!isLogin); setError(null); setSuccess(null) }}
+            onClick={toggleMode}
             className="w-full text-slate-400 text-sm py-2"
           >
             {isLogin
@@ -98,5 +85,4 @@ export default function AuthPage() {
       </p>
     </div>
   )
-
 }

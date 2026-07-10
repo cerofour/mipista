@@ -1,42 +1,23 @@
-import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Mail, Lock } from "lucide-react";
-import { supabase } from '../lib/supabaseClient';
-import { useNavigate } from 'react-router';
+import { useLoginController } from '../hooks/useLoginController';
 
 export default function MiPistaLogin() {
-  const [isLogin, setIsLogin]   = useState(true);
-  const [email, setEmail]       = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading]   = useState(false);
-  const [error, setError]       = useState<string | null>(null);
-  const [success, setSuccess]   = useState<string | null>(null);
-
-  const navigate = useNavigate();
-
-  const handleSubmit = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!email || !password) return;
-
-    setLoading(true);
-    setError(null);
-    setSuccess(null);
-
-    const { error: authError } = isLogin
-      ? await supabase.auth.signInWithPassword({ email, password })
-      : await supabase.auth.signUp({ email, password });
-
-    if (authError) {
-      setError(authError.message);
-    } else if (!isLogin) {
-      setSuccess('Cuenta creada. Revisa tu email o inicia sesión directamente.');
-    } else {
-      navigate('/map');
-    }
-    setLoading(false);
-  };
+  const {
+    isLogin,
+    email,
+    setEmail,
+    password,
+    setPassword,
+    loading,
+    error,
+    success,
+    toggleMode,
+    handleSubmit,
+    goBack
+  } = useLoginController();
 
   return (
     <div className="min-h-screen bg-[#323232] text-white flex flex-col items-center justify-center p-4 relative font-sans">
@@ -44,7 +25,7 @@ export default function MiPistaLogin() {
       <Button
         variant="ghost"
         className="absolute top-6 left-6 flex items-center text-sm text-gray-300 hover:text-black transition-colors cursor-pointer min-h-[44px]"
-        onClick={() => navigate(-1)}
+        onClick={goBack}
       >
         <ArrowLeft className="w-5 h-5 mr-2" aria-hidden="true" />
         Regresar al Inicio
@@ -136,8 +117,6 @@ export default function MiPistaLogin() {
 
               {isLogin && (
                 <div className="text-center">
-
-                  
                   <a
                     href="#"
                     className="text-[#0088FF] text-sm font-medium hover:underline transition-all
@@ -154,14 +133,13 @@ export default function MiPistaLogin() {
           </form>
         </section>
 
-
         <div className="mt-10 text-sm flex items-center justify-center gap-1">
           <span className="text-gray-300">
             {isLogin ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}
           </span>
           <button
             type="button"
-            onClick={() => { setIsLogin(!isLogin); setError(null); setSuccess(null); }}
+            onClick={toggleMode}
             className="text-[#0088FF] font-medium hover:underline transition-all bg-transparent
                        border-none cursor-pointer min-h-[44px] px-2
                        focus-visible:outline-none focus-visible:ring-2

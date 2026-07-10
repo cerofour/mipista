@@ -1,7 +1,9 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
-import { supabase } from '../lib/supabaseClient'
 import type { User } from '@supabase/supabase-js'
 import type { Point, Report, ToastState } from '../types'
+import { authService } from '../services/auth.service'
+import { reportService } from '../services/report.service'
+import { locationService } from '../services/location.service'
 
 interface AppContextValue {
   user: User | null
@@ -21,8 +23,6 @@ interface AppContextValue {
 
 const AppContext = createContext<AppContextValue | null>(null)
 
-const CHICLAYO: Point = { lat: -6.7714, lng: -79.8409 }
-
 export function AppProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
@@ -33,22 +33,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [toast, setToast] = useState<ToastState | null>(null)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    authService.getSession().then((session) => {
       setUser(session?.user ?? null)
       setLoading(false)
     })
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    const subscription = authService.onAuthStateChange(
       (_event, session) => setUser(session?.user ?? null)
     )
     return () => subscription.unsubscribe()
   }, [])
 
   const fetchReports = useCallback(async () => {
-    const { data, error } = await supabase
-      .from('reportes_baches')
-      .select('id, lat, lng, prioridad, descripcion, imagen_url, created_at')
-      .order('created_at', { ascending: false })
-    if (!error) setReports((data as Report[]) ?? [])
+    try {
+      const data = await reportService.fetchReports()
+      setReports(data)
+    } catch {
+      // Ignorar errores o manejar según diseño original
+    }
   }, [])
 
   const showToast = useCallback((message: string, type: 'success' | 'error' = 'success') => {
@@ -63,7 +64,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     selectedPoint, setSelectedPoint,
     showReportModal, setShowReportModal,
     toast, showToast,
-    CHICLAYO
+    CHICLAYO: locationService.CHICLAYO
   }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

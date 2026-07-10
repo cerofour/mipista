@@ -1,3 +1,4 @@
+
 export type Priority = 'bajo' | 'medio' | 'alto'
 
 export interface Point {
