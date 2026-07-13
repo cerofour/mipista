@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useApp } from '@/context/AppContext'
 import { reportService } from '@/services/report.service'
+import type { ReportResult } from '@/services/report.service'
 import { locationService } from '@/services/location.service'
 import { authService } from '@/services/auth.service'
 import { useReverseGeocode } from '@/lib/useReverseGeoCode'
@@ -15,7 +16,9 @@ export function useMapController() {
     showReportModal, setShowReportModal,
     toast, showToast,
     CHICLAYO,
-    voiceConfirmations
+    voiceConfirmations,
+    offlineStoreImages,
+    refreshPendingCount
   } = useApp()
 
   const [showListModal, setShowListModal] = useState(false)
@@ -67,6 +70,26 @@ export function useMapController() {
     if (quickTimer.current) clearTimeout(quickTimer.current)
   }
 
+  /** Handle the result of a report submission (online or offline fallback) */
+  const handleReportResult = (result: ReportResult) => {
+    switch (result.status) {
+      case 'sent':
+        showToast('Reporte enviado correctamente')
+        fetchReports()
+        break
+      case 'queued':
+        showToast('Sin conexión. Reporte guardado, se enviará al recuperar señal')
+        refreshPendingCount()
+        break
+      case 'queue_full':
+        showToast(result.reason, 'error')
+        break
+      case 'error':
+        showToast('Error al enviar reporte', 'error')
+        break
+    }
+  }
+
   const handleQuickReport = async () => {
     if (quickStep === 0) {
       setQuickStep(1)
@@ -77,21 +100,17 @@ export function useMapController() {
     } else {
       if (quickTimer.current) clearTimeout(quickTimer.current)
 
-      const error = await reportService.sendReport({
-        point: currentPoint,
-        prioridad: 'medio',
-        descripcion: null,
-        file: null
-      })
+      const result = await reportService.sendReportWithFallback(
+        {
+          point: currentPoint,
+          prioridad: 'medio',
+          descripcion: null,
+          file: null
+        },
+        offlineStoreImages
+      )
 
-      if (error) {
-        console.log(error);
-        showToast('Error al enviar reporte', 'error')
-      } else {
-        showToast('Reporte enviado correctamente')
-        fetchReports()
-      }
-
+      handleReportResult(result)
       dismissPanel()
     }
   }
@@ -127,13 +146,8 @@ export function useMapController() {
   }
 
   const handleReportSubmit = async (data: any) => {
-    const error = await reportService.sendReport(data)
-    if (error) {
-      showToast('Error al enviar reporte', 'error')
-    } else {
-      showToast('Reporte enviado correctamente')
-      fetchReports()
-    }
+    const result = await reportService.sendReportWithFallback(data, offlineStoreImages)
+    handleReportResult(result)
     setShowReportModal(false)
     dismissPanel()
   }
@@ -159,3 +173,4 @@ export function useMapController() {
     handleReportSubmit
   }
 }
+

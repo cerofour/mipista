@@ -7,7 +7,7 @@ import { useApp } from '../context/AppContext'
 import { useNavigate } from 'react-router'
 
 export default function MapPage() {
-  const { largeTouchTargets } = useApp()
+  const { largeTouchTargets, isOnline, pendingReportsCount } = useApp()
   const navigate = useNavigate()
 
   const {
@@ -32,6 +32,17 @@ export default function MapPage() {
     <div className="relative w-full h-dvh bg-slate-900 overflow-hidden">
       {toast && <Toast message={toast.message} type={toast.type} />}
 
+      {/* Offline connectivity banner */}
+      {!isOnline && (
+        <div
+          className="absolute top-0 left-0 right-0 z-[1100] bg-orange-600 text-white text-center py-2 text-sm font-semibold shadow-lg animate-in fade-in slide-in-from-top duration-300"
+          role="alert"
+          aria-live="assertive"
+        >
+          📡 Sin conexión — Los reportes se guardarán localmente
+        </div>
+      )}
+
       <main id="map-content" className="absolute inset-0">
         <MapView onMapClick={handleMapClick} />
       </main>
@@ -54,8 +65,8 @@ export default function MapPage() {
       <div className={`absolute left-4 z-[1000] ${largeTouchTargets ? 'top-24' : 'top-20'}`}>
         <button
           onClick={() => setShowListModal(true)}
-          aria-label="Ver lista de reportes"
-          className={`bg-white/95 backdrop-blur rounded-full flex items-center gap-2 font-medium shadow-lg active:scale-95 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+          aria-label={`Ver lista de reportes${pendingReportsCount > 0 ? `, ${pendingReportsCount} pendientes` : ''}`}
+          className={`relative bg-white/95 backdrop-blur rounded-full flex items-center gap-2 font-medium shadow-lg active:scale-95 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
             largeTouchTargets 
               ? 'px-6 py-4 min-h-[64px] text-base font-semibold' 
               : 'px-4 py-2.5 min-h-[44px] text-sm'
@@ -63,6 +74,14 @@ export default function MapPage() {
         >
           <span aria-hidden="true" className={`text-blue-500 ${largeTouchTargets ? 'text-xl' : 'text-base'}`}>📄</span>
           <span className="text-slate-700">Ver Lista</span>
+          {pendingReportsCount > 0 && (
+            <span
+              className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs font-bold rounded-full min-w-[22px] h-[22px] flex items-center justify-center px-1 shadow-md animate-in zoom-in duration-200"
+              aria-hidden="true"
+            >
+              {pendingReportsCount}
+            </span>
+          )}
         </button>
       </div>
 
