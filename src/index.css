@@ -318,3 +318,62 @@ html.high-contrast button[role="switch"][aria-checked="true"] span {
 html.high-contrast button[role="switch"][aria-checked="false"] span {
   background-color: #ffffff !important;
 }
+
+/* --- Landscape Joystick Floating Button Styles --- */
+.landscape-joystick-btn {
+  box-shadow:
+    0 0 20px rgba(0, 0, 0, 0.4),
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.landscape-joystick-btn:active {
+  box-shadow:
+    0 0 10px rgba(0, 0, 0, 0.5),
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.landscape-location-div {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* --- High Contrast: Landscape Joystick --- */
+html.high-contrast .landscape-joystick-btn {
+  border: 3px solid #ffffff !important;
+  font-weight: 800 !important;
+}
+
+html.high-contrast .landscape-joystick-btn.bg-slate-700\/95,
+html.high-contrast .landscape-joystick-btn[class*="bg-slate"] {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+html.high-contrast .landscape-joystick-btn[class*="bg-blue"] {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  border-color: #ffff00 !important;
+}
+
+html.high-contrast .landscape-joystick-btn[class*="bg-orange"] {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  border-color: #ffffff !important;
+}
+
+html.high-contrast .landscape-location-div {
+  background-color: #000000 !important;
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+}
+
+html.high-contrast .landscape-location-div p {
+  color: #ffffff !important;
+}

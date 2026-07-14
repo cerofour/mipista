@@ -147,6 +147,7 @@ export function useMapController() {
 
   const handleReportSubmit = async (data: any) => {
     const result = await reportService.sendReportWithFallback(data, offlineStoreImages)
+    console.log(result)
     handleReportResult(result)
     setShowReportModal(false)
     dismissPanel()
